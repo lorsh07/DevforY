@@ -19,6 +19,12 @@
   --radius-lg: 28px;
   --radius-md: 18px;
   --nav-h: 52px;
+  --gutter: 22px;
+  --container: 1024px;
+  /* 노치·홈 인디케이터 영역 피하기 */
+  --safe-l: max(var(--gutter), env(safe-area-inset-left));
+  --safe-r: max(var(--gutter), env(safe-area-inset-right));
+  --safe-b: env(safe-area-inset-bottom, 0px);
 }
 
 * { box-sizing: border-box; }
@@ -40,12 +46,13 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-button { font: inherit; color: inherit; cursor: pointer; }
+button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; }
 ::selection { background: var(--neon); color: var(--black); }
 :focus-visible { outline: 2px solid var(--neon); outline-offset: 3px; border-radius: 6px; }
 
-.container { max-width: 1024px; margin: 0 auto; padding: 0 22px; }
+.container { max-width: var(--container); margin: 0 auto; padding: 0 var(--safe-r) 0 var(--safe-l); }
 .container-narrow { max-width: 720px; }
 .center { text-align: center; }
 .neon { color: var(--neon); }
@@ -62,10 +69,10 @@ a { color: inherit; }
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 .nav-inner {
-  max-width: 1024px;
+  max-width: var(--container);
   height: 100%;
   margin: 0 auto;
-  padding: 0 22px;
+  padding: 0 var(--safe-r) 0 var(--safe-l);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -76,6 +83,9 @@ a { color: inherit; }
   font-size: 1.1rem;
   letter-spacing: -0.03em;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 .logo span { color: var(--neon); }
 .nav-cta {
@@ -83,7 +93,8 @@ a { color: inherit; }
   border: 0;
   color: var(--white);
   font-size: 0.85rem;
-  padding: 6px 14px;
+  padding: 6px 16px;
+  min-height: 36px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.25);
   transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease), box-shadow 0.3s var(--ease);
@@ -179,6 +190,10 @@ main { flex: 1; }
   background: none;
   border: 0;
   padding: 6px 0;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   color: var(--gray-500);
   font-size: 0.95rem;
   transition: color 0.2s;
@@ -189,6 +204,10 @@ main { flex: 1; }
   color: var(--neon);
   text-decoration: none;
   font-size: 1.05rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
 }
 .link-more:hover { text-decoration: underline; text-underline-offset: 4px; }
 
@@ -666,7 +685,7 @@ main { flex: 1; }
 .toast {
   position: fixed;
   left: 50%;
-  bottom: 32px;
+  bottom: calc(32px + var(--safe-b));
   transform: translate(-50%, 20px);
   background: var(--neon);
   color: var(--black);
@@ -687,7 +706,7 @@ main { flex: 1; }
   background: var(--gray-50);
   color: var(--gray-500);
   font-size: 0.82rem;
-  padding: 28px 0 36px;
+  padding: 28px 0 calc(36px + var(--safe-b));
 }
 .footer p { margin: 0; }
 .footer .container { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
@@ -719,8 +738,7 @@ main { flex: 1; }
 }
 
 @media (max-width: 480px) {
-  .container { padding: 0 16px; }
-  .nav-inner { padding: 0 16px; }
+  :root { --gutter: 16px; }
   .hero-actions { flex-direction: column; gap: 20px; }
   .btn-lg { width: 100%; }
   .roadmap { grid-template-columns: 1fr; }
@@ -731,6 +749,78 @@ main { flex: 1; }
 
 @media (max-width: 360px) {
   .question-title { font-size: 1.55rem; }
+  .hero-stats { gap: 24px; }
+  .hero-stats dd { font-size: 1.6rem; }
+  .lang-grid { gap: 8px; }
+  .lang-tile { padding: 16px 14px; }
+}
+
+/* 터치 기기: 작은 버튼도 손가락으로 누르기 쉽게 */
+@media (pointer: coarse) {
+  .nav-cta { min-height: 40px; padding: 8px 18px; }
+  .option { min-height: 64px; }
+}
+
+/* 태블릿 (735px ~ 1023px) */
+@media (min-width: 735px) and (max-width: 1023px) {
+  :root { --gutter: 32px; }
+  .steps { gap: 14px; }
+  .steps li { padding: 30px 24px 32px; }
+  .steps h3 { font-size: 1.3rem; }
+  .tile { padding: 30px 28px; }
+}
+
+/* 큰 모니터 */
+@media (min-width: 1440px) {
+  :root { --container: 1180px; }
+  html { font-size: 106.25%; }
+  .container.container-narrow { max-width: 780px; }
+  .section { padding: 128px 0; }
+  .hero { padding: 150px 0 140px; }
+  .result-hero { padding: 120px 0 130px; }
+  .lang-grid { grid-template-columns: repeat(6, 1fr); }
+}
+@media (min-width: 1920px) {
+  :root { --container: 1280px; }
+  html { font-size: 112.5%; }
+  .container.container-narrow { max-width: 840px; }
+}
+
+/* 가로로 눕힌 휴대폰: 세로 공간이 좁으니 여백을 줄이고 보기를 두 줄로 */
+@media (orientation: landscape) and (max-height: 500px) {
+  .section { padding: 56px 0; }
+  .section-title { margin-bottom: 28px; }
+  .section-sub { margin: -14px 0 24px; }
+  .hero { padding: 44px 0 52px; }
+  .hero-eyebrow { margin-bottom: 10px; }
+  .hero-title { font-size: 2.6rem; margin-bottom: 14px; }
+  .hero-lead { margin-bottom: 22px; font-size: 1rem; }
+  .hero-actions { flex-direction: row; gap: 24px; }
+  .hero-actions .btn-lg { width: auto; }
+  .hero-stats { margin-top: 28px; }
+  .hero-stats dd { font-size: 1.6rem; }
+  .steps { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .steps li { padding: 22px 20px; }
+  .steps h3 { font-size: 1.15rem; }
+  .lang-grid { grid-template-columns: repeat(4, 1fr); }
+
+  #screen-quiz { padding: 16px 0 40px; }
+  .progress-wrap { margin-bottom: 18px; }
+  .question-num { margin-bottom: 6px; }
+  .question-title { font-size: 1.5rem; margin-bottom: 6px; }
+  .question-hint, .question-hint.empty { margin-bottom: 16px; font-size: 0.95rem; }
+  .options, .options-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .option { padding: 12px 16px; min-height: 56px; font-size: 0.98rem; }
+
+  .result-hero { padding: 44px 0 56px; }
+  .mono-xl { width: 68px; height: 68px; border-radius: 20px; font-size: 1.5rem; margin-bottom: 14px; }
+  .result-name { font-size: 3rem; }
+  .result-tagline { margin: 10px 0 20px; }
+  .result-match { margin-bottom: 18px; }
+  .result-match .neon { font-size: 3.2rem; }
+  .bento { grid-template-columns: 1fr 1fr; }
+  .roadmap { grid-template-columns: 1fr 1fr; }
+  .alts { grid-template-columns: 1fr 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {
