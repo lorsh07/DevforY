@@ -2,6 +2,7 @@
   "use strict";
 
   const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => document.querySelectorAll(sel);
   const screens = {
     intro: $("#screen-intro"),
     quiz: $("#screen-quiz"),
@@ -22,19 +23,37 @@
   let current = 0;
   let answers = []; // 문항별로 선택한 보기의 index
 
-  // ---------- 화면 전환 ----------
+  // ---------- 공통 ----------
+  function esc(str) {
+    return String(str).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]
+    );
+  }
+
+  // 언어 약어 타일 (글자 수에 따라 크기 조절)
+  function mono(key, extraClass = "") {
+    const m = LANGUAGES[key].mono;
+    return `<span class="mono mono-len${Math.min(m.length, 4)} ${extraClass}" aria-hidden="true">${esc(m)}</span>`;
+  }
+
   function show(name) {
-    Object.entries(screens).forEach(([key, el]) => {
-      el.classList.toggle("active", key === name);
-    });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    Object.entries(screens).forEach(([key, el]) => el.classList.toggle("active", key === name));
+    document.body.dataset.screen = name;
+    window.scrollTo(0, 0);
   }
 
   // ---------- 시작 화면 ----------
-  function renderIntroChips() {
+  function renderIntro() {
+    $("#stat-questions").textContent = QUESTIONS.length;
+    $("#stat-langs").textContent = LANG_KEYS.length;
     $("#intro-langs").innerHTML = LANG_KEYS.map((key) => {
       const l = LANGUAGES[key];
-      return `<span class="chip">${l.icon} ${l.name}</span>`;
+      return `
+        <div class="lang-tile">
+          ${mono(key)}
+          <strong>${esc(l.name)}</strong>
+          <span>${esc(l.tagline)}</span>
+        </div>`;
     }).join("");
   }
 
@@ -57,12 +76,14 @@
     $(".progress").setAttribute("aria-valuenow", String(pct));
     $("#btn-back").style.visibility = current === 0 ? "hidden" : "visible";
 
-    $("#question-title").textContent = `Q${current + 1}. ${q.title}`;
+    $("#question-num").textContent = `Question ${String(current + 1).padStart(2, "0")}`;
+    $("#question-title").textContent = q.title;
     const hint = $("#question-hint");
     hint.textContent = q.hint || "";
-    hint.hidden = !q.hint;
+    hint.classList.toggle("empty", !q.hint);
 
     const box = $("#options");
+    box.classList.toggle("options-grid", q.options.length > 6);
     box.innerHTML = "";
     q.options.forEach((opt, i) => {
       const btn = document.createElement("button");
@@ -70,19 +91,17 @@
       btn.className = "option";
       btn.setAttribute("role", "listitem");
       if (answers[current] === i) btn.classList.add("selected");
-      btn.innerHTML = `
-        <span class="option-key">${i + 1}</span>
-        <span class="option-icon" aria-hidden="true">${opt.icon}</span>
-        <span class="option-text"></span>`;
+      btn.innerHTML = `<span class="option-key">${i + 1}</span><span class="option-text"></span>`;
       btn.querySelector(".option-text").textContent = opt.text;
       btn.addEventListener("click", () => choose(i, btn));
       box.appendChild(btn);
     });
 
-    // 애니메이션 재시작
-    box.classList.remove("fade-in");
-    void box.offsetWidth;
-    box.classList.add("fade-in");
+    // 등장 애니메이션 재시작
+    const qEl = $("#question");
+    qEl.classList.remove("enter");
+    void qEl.offsetWidth;
+    qEl.classList.add("enter");
   }
 
   let locked = false;
@@ -90,7 +109,7 @@
     if (locked) return;
     locked = true;
     answers[current] = index;
-    document.querySelectorAll(".option").forEach((el) => el.classList.remove("selected"));
+    $$(".option").forEach((el) => el.classList.remove("selected"));
     btn.classList.add("selected");
 
     setTimeout(() => {
@@ -101,7 +120,7 @@
       } else {
         finish();
       }
-    }, 260);
+    }, 280);
   }
 
   function goBack() {
@@ -150,69 +169,65 @@
   }
 
   // ---------- 결과 화면 ----------
-  function esc(str) {
-    return String(str).replace(/[&<>"']/g, (c) =>
-      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]
-    );
-  }
-
-  function difficultyLabel(n) {
-    return ["", "아주 쉬움", "쉬움", "보통", "어려움", "도전적"][n];
-  }
+  const DIFFICULTY = ["", "아주 쉬움", "쉬움", "보통", "어려움", "도전적"];
+  const ARROW_SVG =
+    '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l5-5M4.5 3.5h4v4"/></svg>';
 
   function detailHTML(key, percent, isTop) {
     const l = LANGUAGES[key];
-    const dots = Array.from({ length: 5 }, (_, i) =>
-      `<span class="dot ${i < l.difficulty ? "on" : ""}"></span>`
-    ).join("");
+    const dots = Array.from({ length: 5 }, (_, i) => `<span class="dot ${i < l.difficulty ? "on" : ""}"></span>`).join("");
 
     return `
-      <article class="result-hero" style="--lang:${l.color}">
-        <p class="eyebrow">${isTop ? "당신에게 가장 잘 맞는 언어" : "추천 언어 상세 보기"}</p>
-        <div class="hero-icon" aria-hidden="true">${l.icon}</div>
-        <h1 id="result-name">${esc(l.name)}</h1>
-        <p class="hero-tagline">${esc(l.tagline)}</p>
-        <div class="match">
-          <span class="match-num">${percent}%</span>
-          <span class="match-label">적합도</span>
+      <header class="result-hero">
+        <div class="container">
+          <p class="hero-eyebrow">${isTop ? "당신에게 가장 잘 맞는 언어" : "추천 언어 상세 보기"}</p>
+          ${mono(key, "mono-xl")}
+          <h1 id="result-name" class="result-name">${esc(l.name)}</h1>
+          <p class="result-tagline">${esc(l.tagline)}</p>
+          <p class="result-match"><span class="neon">${percent}%</span><small>적합도</small></p>
+          <p class="result-summary">${esc(l.summary)}</p>
         </div>
-        <p class="hero-summary">${esc(l.summary)}</p>
-      </article>
+      </header>
 
-      <div class="grid">
-        <section class="card">
-          <h3>💡 이런 분께 잘 맞아요</h3>
-          <ul class="check-list">${l.fit.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>
-        </section>
+      <section class="section section-gray">
+        <div class="container">
+          <div class="bento">
+            <article class="tile">
+              <h3>이런 분께 잘 맞아요</h3>
+              <ul class="check-list">${l.fit.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>
+            </article>
 
-        <section class="card">
-          <h3>🛠️ 이런 걸 만들 수 있어요</h3>
-          <div class="tags">${l.build.map((b) => `<span class="tag">${esc(b)}</span>`).join("")}</div>
-          <h3 class="mt">💼 관련 직업</h3>
-          <div class="tags">${l.jobs.map((j) => `<span class="tag tag-soft">${esc(j)}</span>`).join("")}</div>
-        </section>
+            <article class="tile">
+              <h3>이런 걸 만들 수 있어요</h3>
+              <div class="tags">${l.build.map((b) => `<span class="tag">${esc(b)}</span>`).join("")}</div>
+              <h3 class="mt">관련 직업</h3>
+              <div class="tags">${l.jobs.map((j) => `<span class="tag tag-outline">${esc(j)}</span>`).join("")}</div>
+            </article>
 
-        <section class="card">
-          <h3>📈 입문 난이도</h3>
-          <div class="difficulty">
-            <div class="dots" aria-hidden="true">${dots}</div>
-            <span>${difficultyLabel(l.difficulty)}</span>
+            <article class="tile tile-dark">
+              <h3>입문 난이도</h3>
+              <p class="difficulty-label">${DIFFICULTY[l.difficulty]}</p>
+              <div class="dots" aria-label="5단계 중 ${l.difficulty}단계">${dots}</div>
+            </article>
+
+            <article class="tile">
+              <h3>추천 학습 자료</h3>
+              <ul class="link-list">
+                ${l.resources
+                  .map((r) => `<li><a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer"><span>${esc(r.label)}</span><span class="arrow" aria-hidden="true">${ARROW_SVG}</span></a></li>`)
+                  .join("")}
+              </ul>
+            </article>
+
+            <article class="tile tile-wide">
+              <h3>4단계 학습 로드맵</h3>
+              <ol class="roadmap">
+                ${l.roadmap.map((step, i) => `<li><span class="step-num">${i + 1}</span><p>${esc(step)}</p></li>`).join("")}
+              </ol>
+            </article>
           </div>
-          <h3 class="mt">📚 추천 학습 자료</h3>
-          <ul class="link-list">
-            ${l.resources
-              .map((r) => `<li><a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.label)} ↗</a></li>`)
-              .join("")}
-          </ul>
-        </section>
-
-        <section class="card card-wide">
-          <h3>🗺️ 4단계 학습 로드맵</h3>
-          <ol class="roadmap">
-            ${l.roadmap.map((step, i) => `<li><span class="step-num">${i + 1}</span><span>${esc(step)}</span></li>`).join("")}
-          </ol>
-        </section>
-      </div>`;
+        </div>
+      </section>`;
   }
 
   function renderResult(ranking, selectedKey) {
@@ -225,8 +240,8 @@
         const l = LANGUAGES[r.key];
         const active = r.key === focus.key ? "active" : "";
         return `
-          <button type="button" class="alt ${active}" data-key="${r.key}" style="--lang:${l.color}">
-            <span class="alt-icon" aria-hidden="true">${l.icon}</span>
+          <button type="button" class="alt ${active}" data-key="${r.key}">
+            ${mono(r.key)}
             <span class="alt-body">
               <strong>${esc(l.name)}</strong>
               <small>${esc(l.tagline)}</small>
@@ -237,12 +252,12 @@
       .join("");
 
     const barsHTML = ranking
-      .map((r) => {
+      .map((r, i) => {
         const l = LANGUAGES[r.key];
         return `
-          <li>
-            <span class="bar-name">${l.icon} ${esc(l.name)}</span>
-            <span class="bar-track"><span class="bar-fill" style="--w:${r.percent}%;--lang:${l.color}"></span></span>
+          <li class="${i === 0 ? "first" : ""}">
+            <span class="bar-name">${esc(l.name)}</span>
+            <span class="bar-track"><span class="bar-fill" style="--w:${r.percent}%"></span></span>
             <span class="bar-pct">${r.percent}%</span>
           </li>`;
       })
@@ -250,43 +265,55 @@
 
     const backToTop =
       focus.key !== top.key
-        ? `<button type="button" class="btn-text back-top" data-key="${top.key}">← 1순위 ${esc(LANGUAGES[top.key].name)}(으)로 돌아가기</button>`
+        ? `<div class="container"><button type="button" class="btn-text back-top" data-key="${top.key}"><span aria-hidden="true">‹</span> 1순위 ${esc(LANGUAGES[top.key].name)}(으)로 돌아가기</button></div>`
         : "";
 
     $("#result").innerHTML = `
-      ${backToTop}
+      <div class="result-top">${backToTop}</div>
       ${detailHTML(focus.key, focus.percent, focus.key === top.key)}
 
-      <section class="card">
-        <h3>🥈 함께 고려해볼 만한 언어</h3>
-        <p class="muted">눌러서 자세한 정보를 확인해 보세요.</p>
-        <div class="alts">${altHTML}</div>
+      <section class="section section-light">
+        <div class="container">
+          <h2 class="section-title">함께 고려해볼 만한 언어</h2>
+          <p class="section-sub">눌러서 자세한 정보를 확인해 보세요.</p>
+          <div class="alts">${altHTML}</div>
+        </div>
       </section>
 
-      <section class="card">
-        <h3>📊 언어별 적합도</h3>
-        <ul class="bars">${barsHTML}</ul>
+      <section class="section section-dark">
+        <div class="container">
+          <h2 class="section-title">언어별 <span class="neon">적합도</span></h2>
+          <ul class="bars">${barsHTML}</ul>
+          <div class="actions">
+            <button type="button" id="btn-share" class="btn btn-neon">결과 링크 복사</button>
+            <button type="button" id="btn-retry" class="btn btn-outline-light">다시 검사하기</button>
+          </div>
+        </div>
       </section>
-
-      <div class="actions">
-        <button type="button" id="btn-share" class="btn btn-primary">🔗 결과 링크 복사</button>
-        <button type="button" id="btn-retry" class="btn btn-ghost">↺ 다시 검사하기</button>
-      </div>
       <p id="toast" class="toast" role="status" aria-live="polite"></p>`;
 
-    document.querySelectorAll("#result [data-key]").forEach((el) => {
+    $$("#result [data-key]").forEach((el) => {
       el.addEventListener("click", () => {
         renderResult(ranking, el.dataset.key);
-        $("#result").scrollIntoView({ behavior: "smooth" });
+        window.scrollTo({ top: 0, behavior: "smooth" });
       });
     });
     $("#btn-retry").addEventListener("click", startQuiz);
     $("#btn-share").addEventListener("click", shareResult);
 
-    // 막대 그래프 애니메이션
-    requestAnimationFrame(() => {
-      document.querySelectorAll(".bar-fill").forEach((el) => el.classList.add("grow"));
-    });
+    // 막대 그래프는 화면에 보일 때 채워지도록
+    const bars = $(".bars");
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          bars.classList.add("grow");
+          io.disconnect();
+        }
+      }, { threshold: 0.2 });
+      io.observe(bars);
+    } else {
+      bars.classList.add("grow");
+    }
   }
 
   async function shareResult() {
@@ -298,7 +325,7 @@
         return;
       }
       await navigator.clipboard.writeText(url);
-      toast.textContent = "결과 링크를 복사했어요!";
+      toast.textContent = "결과 링크를 복사했어요.";
     } catch (e) {
       if (e && e.name === "AbortError") return;
       toast.textContent = "복사에 실패했어요. 주소창의 링크를 직접 복사해 주세요.";
@@ -307,23 +334,30 @@
     setTimeout(() => toast.classList.remove("show"), 2200);
   }
 
-  // ---------- 키보드 단축키 (1~6 선택, Backspace 이전) ----------
+  // ---------- 키보드 단축키 (숫자키 선택, Backspace 이전) ----------
   document.addEventListener("keydown", (e) => {
     if (!screens.quiz.classList.contains("active")) return;
     const n = parseInt(e.key, 10);
-    const opts = document.querySelectorAll(".option");
+    const opts = $$(".option");
     if (n >= 1 && n <= opts.length) opts[n - 1].click();
     else if (e.key === "Backspace") goBack();
   });
 
   // ---------- 초기화 ----------
-  $("#btn-start").addEventListener("click", startQuiz);
+  $$("[data-start]").forEach((el) => el.addEventListener("click", startQuiz));
   $("#btn-back").addEventListener("click", goBack);
-  renderIntroChips();
+  renderIntro();
 
-  const shared = parseHash();
-  if (shared) {
-    renderResult(shared);
-    show("result");
+  function routeFromHash() {
+    const shared = parseHash();
+    if (shared) {
+      renderResult(shared);
+      show("result");
+      return true;
+    }
+    return false;
   }
+
+  window.addEventListener("hashchange", routeFromHash);
+  if (!routeFromHash()) document.body.dataset.screen = "intro";
 })();
