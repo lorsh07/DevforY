@@ -1,10 +1,12 @@
 // 추천 대상 언어 정보
 // mono: 언어 타일에 표시할 약어
+// color: 언어의 대표(로고) 색
 // difficulty: 1(쉬움) ~ 5(어려움)
 const LANGUAGES = {
   html: {
     name: "HTML",
     mono: "HTML",
+    color: "#E34F26",
     tagline: "웹의 뼈대를 만드는 첫걸음",
     summary:
       "웹페이지의 구조와 내용을 만드는 마크업 언어예요. 엄밀히 말하면 프로그래밍 언어는 아니지만, 메모장과 브라우저만 있으면 바로 결과를 볼 수 있어 코딩의 첫걸음으로 가장 부담이 적어요. 이후 CSS, JavaScript로 자연스럽게 확장할 수 있어요.",
@@ -31,6 +33,7 @@ const LANGUAGES = {
   css: {
     name: "CSS",
     mono: "CSS",
+    color: "#1572B6",
     tagline: "웹에 디자인을 입히는 언어",
     summary:
       "HTML로 만든 웹페이지에 색, 글꼴, 레이아웃, 애니메이션을 입히는 스타일 언어예요. 한 줄만 바꿔도 화면이 즉시 달라져서 디자인 감각이 있는 분께 특히 재미있어요. 보통 HTML과 함께 배우고 JavaScript로 이어져요.",
@@ -57,6 +60,7 @@ const LANGUAGES = {
   javascript: {
     name: "JavaScript",
     mono: "JS",
+    color: "#F7DF1E",
     tagline: "웹을 움직이는 언어",
     summary:
       "모든 웹 브라우저에서 바로 실행되는 언어예요. 코드를 쓰면 화면에 즉시 결과가 나타나서 성취감이 크고, 웹사이트부터 서버, 모바일 앱까지 하나의 언어로 만들 수 있어요.",
@@ -83,6 +87,7 @@ const LANGUAGES = {
   python: {
     name: "Python",
     mono: "Py",
+    color: "#3776AB",
     tagline: "쉽고 강력한 만능 언어",
     summary:
       "영어 문장처럼 읽히는 간결한 문법 덕분에 처음 배우기 가장 좋은 언어 중 하나예요. 데이터 분석, 인공지능, 업무 자동화, 웹 서버까지 활용 범위가 매우 넓어요.",
@@ -109,6 +114,7 @@ const LANGUAGES = {
   sql: {
     name: "SQL",
     mono: "SQL",
+    color: "#00758F",
     tagline: "데이터와 대화하는 언어",
     summary:
       "데이터베이스에 저장된 정보를 조회하고 관리하는 언어예요. SELECT, WHERE처럼 영어 문장에 가까운 형태라 배우기 쉽고, 개발자뿐 아니라 기획자, 마케터, 분석가까지 거의 모든 직군에서 쓰이는 필수 기술이에요.",
@@ -135,6 +141,7 @@ const LANGUAGES = {
   java: {
     name: "Java",
     mono: "Jv",
+    color: "#F8981D",
     tagline: "탄탄한 기업용 대표 언어",
     summary:
       "국내 대기업, 금융권, 공공기관 서비스에서 가장 많이 쓰이는 언어예요. 규칙이 명확해서 처음엔 코드가 길게 느껴질 수 있지만, 객체지향 프로그래밍의 기본기를 단단하게 다질 수 있어요.",
@@ -161,6 +168,7 @@ const LANGUAGES = {
   kotlin: {
     name: "Kotlin",
     mono: "Kt",
+    color: "#7F52FF",
     tagline: "안드로이드 앱의 공식 언어",
     summary:
       "구글이 공식 지정한 안드로이드 앱 개발 언어예요. Java보다 간결하고 안전하게 설계되어 있어 배우기 편하고, 서버 개발에도 점점 많이 쓰이고 있어요.",
@@ -187,6 +195,7 @@ const LANGUAGES = {
   swift: {
     name: "Swift",
     mono: "Sw",
+    color: "#F05138",
     tagline: "아이폰·맥 앱을 위한 언어",
     summary:
       "애플이 만든 언어로 아이폰, 아이패드, 맥, 애플워치 앱을 만들 수 있어요. 문법이 읽기 쉽고, SwiftUI를 쓰면 화면을 몇 줄의 코드로 빠르게 그릴 수 있어요.",
@@ -213,6 +222,7 @@ const LANGUAGES = {
   csharp: {
     name: "C#",
     mono: "C#",
+    color: "#9B4F96",
     tagline: "게임 개발의 첫걸음",
     summary:
       "세계에서 가장 많이 쓰이는 게임 엔진인 Unity의 언어예요. 깔끔한 문법과 강력한 도구 덕분에 게임은 물론 윈도우 프로그램, 웹 서버까지 폭넓게 만들 수 있어요.",
@@ -239,6 +249,7 @@ const LANGUAGES = {
   cpp: {
     name: "C / C++",
     mono: "C++",
+    color: "#00599C",
     tagline: "컴퓨터의 원리를 깨우치는 언어",
     summary:
       "메모리와 하드웨어를 직접 다루는 언어예요. 처음엔 어렵지만 컴퓨터가 실제로 어떻게 동작하는지 깊이 이해할 수 있고, 게임 엔진, 운영체제, 로봇처럼 성능이 중요한 분야의 기반이에요.",
@@ -265,6 +276,7 @@ const LANGUAGES = {
   go: {
     name: "Go",
     mono: "Go",
+    color: "#00ADD8",
     tagline: "빠르고 단순한 클라우드 언어",
     summary:
       "구글이 만든 언어로, 문법이 단순하면서도 실행 속도가 빨라요. Docker, Kubernetes 같은 클라우드 핵심 도구가 Go로 만들어졌고, 대용량 트래픽을 처리하는 서버에 많이 쓰여요.",
@@ -291,6 +303,7 @@ const LANGUAGES = {
   rust: {
     name: "Rust",
     mono: "Rs",
+    color: "#DEA584",
     tagline: "빠르고 안전한 차세대 시스템 언어",
     summary:
       "C++만큼 빠르면서도 메모리 오류를 컴파일 단계에서 막아주는 언어예요. 배우기는 어려운 편이지만 컴파일러가 실수를 친절하게 알려줘서 탄탄한 실력을 쌓을 수 있고, 개발자들이 가장 좋아하는 언어 설문에서 여러 해 연속 1위를 차지했어요.",

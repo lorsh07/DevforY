@@ -30,10 +30,40 @@
     );
   }
 
-  // 언어 약어 타일 (글자 수에 따라 크기 조절)
+  // ---------- 언어 고유 색 ----------
+  function rgb(hex) {
+    const n = parseInt(hex.replace("#", ""), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  function luminance([r, g, b]) {
+    const f = (v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  }
+  const toHex = (c) => "#" + c.map((v) => Math.round(v).toString(16).padStart(2, "0")).join("");
+
+  // 언어 색마다 미리 계산: 그 위에 올릴 글자색(검정/흰색), 검은 배경에서 잘 보이도록 밝힌 색
+  const COLOR_CACHE = {};
+  function langColors(key) {
+    if (COLOR_CACHE[key]) return COLOR_CACHE[key];
+    const base = rgb(LANGUAGES[key].color);
+    const L = luminance(base);
+    const on = (L + 0.05) / 0.05 > 1.05 / (L + 0.05) ? "#000000" : "#ffffff";
+    // 검은 배경 대비 4.5:1 이상이 될 때까지 흰색을 조금씩 섞기
+    let bright = base;
+    for (let t = 0; t <= 1 && (luminance(bright) + 0.05) / 0.05 < 4.5; t += 0.05) {
+      bright = base.map((v) => v + (255 - v) * t);
+    }
+    return (COLOR_CACHE[key] = { color: LANGUAGES[key].color, on, bright: toHex(bright) });
+  }
+  function langVars(key) {
+    const c = langColors(key);
+    return `--c:${c.color};--on:${c.on};--c-bright:${c.bright}`;
+  }
+
+  // 언어 약어 타일 (글자 수에 따라 크기 조절, 언어 고유 색)
   function mono(key, extraClass = "") {
     const m = LANGUAGES[key].mono;
-    return `<span class="mono mono-len${Math.min(m.length, 4)} ${extraClass}" aria-hidden="true">${esc(m)}</span>`;
+    return `<span class="mono mono-len${Math.min(m.length, 4)} ${extraClass}" style="${langVars(key)}" aria-hidden="true">${esc(m)}</span>`;
   }
 
   function show(name) {
@@ -49,7 +79,7 @@
     $("#intro-langs").innerHTML = LANG_KEYS.map((key) => {
       const l = LANGUAGES[key];
       return `
-        <div class="lang-tile">
+        <div class="lang-tile" style="${langVars(key)}">
           ${mono(key)}
           <strong>${esc(l.name)}</strong>
           <span>${esc(l.tagline)}</span>
@@ -188,7 +218,7 @@
           ${mono(key, "mono-xl")}
           <h1 id="result-name" class="result-name">${esc(l.name)}</h1>
           <p class="result-tagline">${esc(l.tagline)}</p>
-          <p class="result-match"><span class="neon">${percent}%</span><small>적합도</small></p>
+          <p class="result-match"><span class="accent">${percent}%</span><small>적합도</small></p>
           <p class="result-summary">${esc(l.summary)}</p>
         </div>
       </header>
@@ -259,7 +289,7 @@
       .map((r, i) => {
         const l = LANGUAGES[r.key];
         return `
-          <li class="${i === 0 ? "first" : ""}">
+          <li class="${i === 0 ? "first" : ""}" style="${langVars(r.key)}">
             <span class="bar-name">${esc(l.name)}</span>
             <span class="bar-track"><span class="bar-fill" style="--w:${r.percent}%"></span></span>
             <span class="bar-pct">${r.percent}%</span>
@@ -271,6 +301,10 @@
       focus.key !== top.key
         ? `<div class="container"><button type="button" class="btn-text back-top" data-key="${top.key}"><span aria-hidden="true">‹</span> 1순위 ${esc(LANGUAGES[top.key].name)}(으)로 돌아가기</button></div>`
         : "";
+
+    // 결과 화면 전체 강조색 = 지금 보고 있는 언어의 고유 색
+    const fc = langColors(focus.key);
+    $("#result").setAttribute("style", `--accent:${fc.bright};--accent-raw:${fc.color};--accent-on:${fc.on}`);
 
     $("#result").innerHTML = `
       <div class="result-top">${backToTop}</div>
@@ -286,7 +320,7 @@
 
       <section class="section section-dark">
         <div class="container">
-          <h2 class="section-title">언어별 <span class="neon">적합도</span></h2>
+          <h2 class="section-title">언어별 <span class="accent">적합도</span></h2>
           <ul class="bars">${barsHTML}</ul>
           <div class="actions">
             <button type="button" id="btn-share" class="btn btn-neon">결과 링크 복사</button>
