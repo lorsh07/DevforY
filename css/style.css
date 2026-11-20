@@ -386,27 +386,106 @@ main { flex: 1; }
   gap: 14px;
   margin-bottom: 56px;
 }
+/* ---------- 리퀴드 글래스 언어 카드 ----------
+   카드 뒤에 언어 색 빛(.lang-glow)을 두고, 카드가 그 빛을 유리처럼 흐리게 비춰요. */
+.lang-cell { position: relative; }
+.lang-glow {
+  position: absolute;
+  left: 2%;
+  top: 0;
+  width: 62%;
+  height: 72%;
+  border-radius: 50%;
+  background: var(--c);
+  filter: blur(26px);
+  opacity: 0.5;
+  pointer-events: none;
+  transition: opacity 0.5s var(--ease);
+  animation: drift 10s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.85s);
+}
+@keyframes drift {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(26%, 24%) scale(1.18); }
+}
 .lang-tile {
-  background: var(--gray-900);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-md);
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 22px;
   padding: 22px 20px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  transition: transform 0.3s var(--ease), border-color 0.3s var(--ease);
+  /* 유리 본체: 반투명 + 뒤를 흐리고 채도를 올려 빛이 번져 보이게 */
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.03) 60%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.35),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.3),
+    inset 0 0 24px rgba(255, 255, 255, 0.04),
+    0 12px 32px rgba(0, 0, 0, 0.45);
+  transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease);
 }
-.lang-tile:hover {
-  transform: translateY(-4px);
-  border-color: rgba(255, 255, 255, 0.3);
-  border-color: color-mix(in srgb, var(--c-bright) 70%, transparent);
-  box-shadow: 0 12px 40px color-mix(in srgb, var(--c) 22%, transparent);
+/* 유리 가장자리의 반사광 (왼쪽 위가 밝고 오른쪽 아래로 은은하게) */
+.lang-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.08) 30%,
+    rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, 0.28));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }
-.lang-tile .mono { margin-bottom: 14px; width: 44px; height: 44px; border-radius: 12px; font-size: 1rem; }
+/* 마우스를 따라 움직이는 빛 */
+.lang-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(220px circle at var(--mx, 30%) var(--my, 0%), rgba(255, 255, 255, 0.16), transparent 65%);
+  opacity: 0;
+  transition: opacity 0.4s var(--ease);
+  pointer-events: none;
+}
+.lang-tile > * { position: relative; z-index: 1; }
+@media (hover: hover) {
+  .lang-cell:hover .lang-tile {
+    transform: translateY(-5px);
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.45),
+      inset 0 -1px 1px rgba(0, 0, 0, 0.3),
+      inset 0 0 28px rgba(255, 255, 255, 0.06),
+      0 22px 44px rgba(0, 0, 0, 0.55);
+  }
+  .lang-cell:hover .lang-tile::after { opacity: 1; }
+  .lang-cell:hover .lang-glow { opacity: 0.7; }
+}
+/* 흐림 효과를 지원하지 않는 브라우저: 진한 반투명 카드 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lang-tile { background: rgba(28, 28, 30, 0.88); }
+}
+.lang-tile .mono {
+  margin-bottom: 14px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 1rem;
+  /* 아이콘에도 위쪽 광택 */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0) 55%), var(--c);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(0, 0, 0, 0.15),
+    0 6px 16px color-mix(in srgb, var(--c) 45%, transparent);
+}
 .lang-tile .mono-len3 { font-size: 0.82rem; }
 .lang-tile .mono-len4 { font-size: 0.7rem; }
 .lang-tile strong { font-size: 1.1rem; letter-spacing: -0.02em; }
-.lang-tile span:last-child { color: var(--gray-500); font-size: 0.88rem; }
+.lang-tile span:last-child { color: rgba(255, 255, 255, 0.68); font-size: 0.88rem; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35); }
 
 /* ---------- 질문 화면 ---------- */
 #screen-quiz { padding: 48px 0 100px; }
