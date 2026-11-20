@@ -89,15 +89,27 @@
   function renderIntro() {
     $("#stat-questions").textContent = QUESTIONS.length;
     $("#stat-langs").textContent = LANG_KEYS.length;
-    $("#intro-langs").innerHTML = LANG_KEYS.map((key) => {
+    $("#intro-langs").innerHTML = LANG_KEYS.map((key, i) => {
       const l = LANGUAGES[key];
       return `
-        <div class="lang-tile" style="${langVars(key)}">
-          ${mono(key)}
-          <strong>${esc(l.name)}</strong>
-          <span>${esc(l.tagline)}</span>
+        <div class="lang-cell" style="${langVars(key)};--i:${i}">
+          <span class="lang-glow" aria-hidden="true"></span>
+          <div class="lang-tile">
+            ${mono(key)}
+            <strong>${esc(l.name)}</strong>
+            <span>${esc(l.tagline)}</span>
+          </div>
         </div>`;
     }).join("");
+
+    // 카드 위 마우스 위치를 넘겨서 빛이 따라오게 해요
+    $("#intro-langs").addEventListener("pointermove", (e) => {
+      const tile = e.target.closest(".lang-tile");
+      if (!tile) return;
+      const r = tile.getBoundingClientRect();
+      tile.style.setProperty("--mx", `${e.clientX - r.left}px`);
+      tile.style.setProperty("--my", `${e.clientY - r.top}px`);
+    });
   }
 
   function startQuiz() {
