@@ -84,7 +84,7 @@ a { color: inherit; }
   padding: 6px 14px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.25);
-  transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease);
+  transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease), box-shadow 0.3s var(--ease);
 }
 .nav-cta:hover { background: var(--neon); border-color: var(--neon); color: var(--black); }
 body[data-screen="quiz"] .nav-cta { display: none; }
@@ -115,9 +115,63 @@ main { flex: 1; }
 .btn:active { transform: scale(0.97); }
 .btn-lg { padding: 16px 34px; font-size: 1.08rem; }
 .btn-neon { background: var(--neon); color: var(--black); }
-.btn-neon:hover { box-shadow: 0 0 0 6px rgba(57, 255, 20, 0.18), 0 0 32px rgba(57, 255, 20, 0.35); }
 .btn-outline-light { background: transparent; color: var(--white); border: 1px solid rgba(255, 255, 255, 0.35); }
-.btn-outline-light:hover { border-color: var(--white); }
+
+/* 호버 시 네온 글로우 + 빛이 스쳐 지나가는 효과 */
+.btn-neon,
+.btn-outline-light {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.3s var(--ease), box-shadow 0.4s var(--ease), border-color 0.3s var(--ease),
+    color 0.3s var(--ease), background 0.3s var(--ease);
+}
+.btn-neon::after,
+.btn-outline-light::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.7) 50%, transparent 70%);
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+.btn-outline-light::after {
+  background: linear-gradient(110deg, transparent 30%, rgba(57, 255, 20, 0.28) 50%, transparent 70%);
+}
+
+@media (hover: hover) {
+  .btn-neon:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 0 0 4px rgba(57, 255, 20, 0.22),
+      0 0 24px rgba(57, 255, 20, 0.65),
+      0 0 64px rgba(57, 255, 20, 0.45),
+      0 0 120px rgba(57, 255, 20, 0.25);
+  }
+  .btn-outline-light:hover {
+    transform: translateY(-2px);
+    color: var(--neon);
+    border-color: var(--neon);
+    box-shadow:
+      0 0 18px rgba(57, 255, 20, 0.45),
+      0 0 48px rgba(57, 255, 20, 0.25),
+      inset 0 0 14px rgba(57, 255, 20, 0.2);
+  }
+  .btn-neon:hover::after,
+  .btn-outline-light:hover::after {
+    animation: shine 0.9s var(--ease);
+  }
+  .nav-cta:hover { box-shadow: 0 0 16px rgba(57, 255, 20, 0.6), 0 0 36px rgba(57, 255, 20, 0.3); }
+}
+/* 키보드로 이동했을 때도 같은 빛 */
+.btn-neon:focus-visible { box-shadow: 0 0 24px rgba(57, 255, 20, 0.65), 0 0 64px rgba(57, 255, 20, 0.4); }
+.btn-neon:active, .btn-outline-light:active { transform: translateY(0) scale(0.97); }
+
+@keyframes shine {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(120%); }
+}
 
 .btn-text {
   background: none;
