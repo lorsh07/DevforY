@@ -60,6 +60,19 @@
     return `--c:${c.color};--on:${c.on};--c-bright:${c.bright}`;
   }
 
+  // 12개 언어 색을 색상환 순서로 이어 붙인 그라데이션 (시작 화면 포인트 색)
+  function hue([r, g, b]) {
+    const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+    if (!d) return 0;
+    const h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return (h * 60 + 360) % 360;
+  }
+  function applyLangGradient() {
+    const stops = LANG_KEYS.map((k) => langColors(k).bright).sort((a, b) => hue(rgb(a)) - hue(rgb(b)));
+    stops.push(stops[0]); // 처음 색으로 끝나야 흐르는 애니메이션이 끊기지 않아요
+    document.documentElement.style.setProperty("--lang-gradient", `linear-gradient(90deg, ${stops.join(", ")})`);
+  }
+
   // 언어 약어 타일 (글자 수에 따라 크기 조절, 언어 고유 색)
   function mono(key, extraClass = "") {
     const m = LANGUAGES[key].mono;
@@ -323,7 +336,7 @@
           <h2 class="section-title">언어별 <span class="accent">적합도</span></h2>
           <ul class="bars">${barsHTML}</ul>
           <div class="actions">
-            <button type="button" id="btn-share" class="btn btn-neon">결과 링크 복사</button>
+            <button type="button" id="btn-share" class="btn btn-accent">결과 링크 복사</button>
             <button type="button" id="btn-retry" class="btn btn-outline-light">다시 검사하기</button>
           </div>
         </div>
@@ -384,6 +397,7 @@
   // ---------- 초기화 ----------
   $$("[data-start]").forEach((el) => el.addEventListener("click", startQuiz));
   $("#btn-back").addEventListener("click", goBack);
+  applyLangGradient();
   renderIntro();
 
   function routeFromHash() {
