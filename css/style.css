@@ -282,6 +282,16 @@ main { flex: 1; }
   animation: flow 14s linear infinite;
   pointer-events: none;
 }
+/* 짙은 회색 점 배경 (js/hero-dots.js) — 위아래 가장자리는 부드럽게 사라지게 */
+.hero-dots {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+}
 .hero .container { position: relative; z-index: 1; }
 .hero-eyebrow {
   margin: 0 0 18px;
