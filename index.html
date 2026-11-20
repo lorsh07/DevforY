@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DevforY · 나에게 맞는 첫 개발 언어 찾기</title>
+  <meta name="description" content="10개의 간단한 질문으로 초보 개발자에게 잘 맞는 프로그래밍 언어를 추천해 드려요." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a href="./" class="logo" aria-label="DevforY 처음으로">Dev<span>for</span>Y</a>
+  </header>
+
+  <main id="app">
+    <!-- 시작 화면 -->
+    <section id="screen-intro" class="screen active" aria-labelledby="intro-title">
+      <p class="eyebrow">초보 개발자를 위한 언어 적성 검사</p>
+      <h1 id="intro-title">나에게 딱 맞는<br />첫 번째 개발 언어는?</h1>
+      <p class="lead">
+        10개의 질문에 답하면 관심사·학습 스타일·목표를 분석해서
+        지금 배우기 좋은 언어와 학습 로드맵을 추천해 드려요.
+      </p>
+      <ul class="intro-meta">
+        <li><strong>10</strong> 문항</li>
+        <li><strong>약 2분</strong> 소요</li>
+        <li><strong>8</strong>개 언어 분석</li>
+      </ul>
+      <button id="btn-start" class="btn btn-primary btn-lg">검사 시작하기</button>
+      <div class="lang-chips" id="intro-langs" aria-label="분석 대상 언어"></div>
+    </section>
+
+    <!-- 질문 화면 -->
+    <section id="screen-quiz" class="screen" aria-live="polite">
+      <div class="progress-wrap">
+        <div class="progress-info">
+          <button id="btn-back" class="btn-text" type="button">← 이전</button>
+          <span id="progress-label">1 / 10</span>
+        </div>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+      </div>
+      <h2 id="question-title" class="question-title"></h2>
+      <p id="question-hint" class="question-hint"></p>
+      <div id="options" class="options" role="list"></div>
+    </section>
+
+    <!-- 결과 화면 -->
+    <section id="screen-result" class="screen" aria-labelledby="result-name">
+      <div id="result"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>결과는 참고용이에요. 어떤 언어로 시작하든 꾸준히 만드는 것이 가장 중요해요.</p>
+  </footer>
+
+  <script src="js/languages.js"></script>
+  <script src="js/questions.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
