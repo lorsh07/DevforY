@@ -77,7 +77,11 @@
     $("#btn-back").style.visibility = current === 0 ? "hidden" : "visible";
 
     $("#question-num").textContent = `Question ${String(current + 1).padStart(2, "0")}`;
-    $("#question-title").textContent = q.title;
+    // " | " 로 나눈 의미 단위를 각각 덩어리로 묶어서, 줄바꿈이 덩어리 사이에서만 일어나게 해요.
+    $("#question-title").innerHTML = q.title
+      .split("|")
+      .map((chunk) => `<span class="phrase">${esc(chunk.trim())}</span>`)
+      .join(" ");
     const hint = $("#question-hint");
     hint.textContent = q.hint || "";
     hint.classList.toggle("empty", !q.hint);

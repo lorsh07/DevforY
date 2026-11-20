@@ -1,9 +1,10 @@
 // 검사 문항
 // 각 보기의 scores 는 해당 답을 골랐을 때 각 언어에 더해지는 점수예요.
 // 언어마다 받을 수 있는 최대 점수가 다르기 때문에 app.js 에서 비율(%)로 환산해 비교해요.
+// title 의 " | " 는 줄바꿈 위치예요. 줄이 넘칠 때 의미 단위(어절 묶음) 사이에서만 줄이 바뀌어요.
 const QUESTIONS = [
   {
-    title: "프로그래밍으로 가장 먼저 만들어보고 싶은 것은?",
+    title: "프로그래밍으로 가장 먼저 | 만들어보고 싶은 것은?",
     hint: "지금 가장 설레는 것을 골라주세요.",
     options: [
       { text: "멋진 웹사이트나 웹 서비스", scores: { javascript: 3, html: 2, css: 2 } },
@@ -14,7 +15,7 @@ const QUESTIONS = [
     ],
   },
   {
-    title: "새로운 것을 배울 때 어떤 방식이 더 즐거운가요?",
+    title: "새로운 것을 배울 때 | 어떤 방식이 더 즐거운가요?",
     hint: "평소 공부하는 습관을 떠올려 보세요.",
     options: [
       { text: "바로 눈에 보이는 결과가 나오는 것", scores: { html: 3, css: 2, javascript: 2, swift: 1 } },
@@ -24,7 +25,7 @@ const QUESTIONS = [
     ],
   },
   {
-    title: "주로 사용하거나 관심 있는 기기는?",
+    title: "주로 사용하거나 | 관심 있는 기기는?",
     hint: "내가 매일 쓰는 기기를 위한 프로그램을 만들면 동기부여가 커져요.",
     options: [
       { text: "아이폰 · 맥", scores: { swift: 3 } },
@@ -34,7 +35,7 @@ const QUESTIONS = [
     ],
   },
   {
-    title: "미래에 되고 싶은 모습에 가장 가까운 것은?",
+    title: "미래에 되고 싶은 모습에 | 가장 가까운 것은?",
     hint: "정답은 없어요. 지금의 마음을 골라주세요.",
     options: [
       { text: "나만의 서비스를 만드는 창업가 · 1인 개발자", scores: { javascript: 2, swift: 1, kotlin: 1, python: 1, html: 1 } },
@@ -46,7 +47,7 @@ const QUESTIONS = [
     ],
   },
   {
-    title: "어려운 문제를 만났을 때 나는?",
+    title: "어려운 문제를 | 만났을 때 나는?",
     hint: "가장 나다운 행동을 골라주세요.",
     options: [
       { text: "일단 이것저것 바꿔보며 시도한다", scores: { javascript: 2, css: 2, python: 1, swift: 1 } },
@@ -56,7 +57,7 @@ const QUESTIONS = [
     ],
   },
   {
-    title: "수학이나 논리 퍼즐을 얼마나 좋아하나요?",
+    title: "수학이나 논리 퍼즐을 | 얼마나 좋아하나요?",
     hint: "",
     options: [
       { text: "아주 좋아한다. 풀 때까지 붙잡고 있는다", scores: { cpp: 3, rust: 2, python: 1 } },
@@ -66,7 +67,7 @@ const QUESTIONS = [
     ],
   },
   {
-    title: "컴퓨터 성능이나 내부 동작에 관심이 있나요?",
+    title: "컴퓨터 성능이나 내부 동작에 | 관심이 있나요?",
     hint: "",
     options: [
       { text: "컴퓨터가 어떻게 돌아가는지 너무 궁금하다", scores: { cpp: 3, rust: 2, go: 1 } },
@@ -76,7 +77,7 @@ const QUESTIONS = [
     ],
   },
   {
-    title: "일주일에 공부에 쓸 수 있는 시간은?",
+    title: "일주일에 | 공부에 쓸 수 있는 시간은?",
     hint: "현실적으로 생각해 보세요. 쉬운 언어일수록 적은 시간에도 성취감을 느낄 수 있어요.",
     options: [
       { text: "3시간 이하", scores: { html: 2, python: 2, css: 1, sql: 1 } },
@@ -86,7 +87,7 @@ const QUESTIONS = [
     ],
   },
   {
-    title: "어떤 환경에서 일하고 싶나요?",
+    title: "어떤 환경에서 | 일하고 싶나요?",
     hint: "",
     options: [
       { text: "혼자 자유롭게 아이디어를 실현하는 환경", scores: { swift: 2, python: 1, javascript: 1 } },
@@ -96,7 +97,7 @@ const QUESTIONS = [
     ],
   },
   {
-    title: "정보를 다루는 일 중 가장 흥미로운 것은?",
+    title: "정보를 다루는 일 중 | 가장 흥미로운 것은?",
     hint: "",
     options: [
       { text: "수많은 데이터에서 원하는 정보를 찾아내기", scores: { sql: 3, python: 2 } },
@@ -107,7 +108,7 @@ const QUESTIONS = [
     ],
   },
   {
-    title: "가장 끌리는 키워드를 하나 고른다면?",
+    title: "가장 끌리는 키워드를 | 하나 고른다면?",
     hint: "직감적으로 골라주세요.",
     options: [
       { text: "AI · 자동화", scores: { python: 3 } },

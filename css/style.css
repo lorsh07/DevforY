@@ -35,6 +35,8 @@ body {
   display: flex;
   flex-direction: column;
   word-break: keep-all;
+  overflow-wrap: break-word;
+  text-wrap: pretty; /* 마지막 줄에 한 단어만 남는 것 방지 (지원 브라우저) */
   -webkit-font-smoothing: antialiased;
 }
 
@@ -379,7 +381,9 @@ main { flex: 1; }
   letter-spacing: -0.04em;
   color: var(--black);
 }
-.question-hint { margin: 0 0 40px; color: var(--gray-500); font-size: 1.05rem; }
+/* 의미 단위 덩어리: 한 줄에 들어가면 쪼개지지 않고, 너무 길 때만 안에서 줄바꿈 */
+.phrase { display: inline-block; }
+.question-hint { margin: 0 0 40px; color: var(--gray-500); font-size: 1.05rem; text-wrap: pretty; }
 .question-hint.empty { margin-bottom: 28px; }
 
 .options { display: grid; gap: 12px; }
@@ -723,6 +727,10 @@ main { flex: 1; }
   .option { padding: 18px; gap: 14px; font-size: 1.02rem; }
   .bars li { grid-template-columns: 82px 1fr 44px; gap: 10px; font-size: 0.9rem; }
   .actions .btn { flex: 1; }
+}
+
+@media (max-width: 360px) {
+  .question-title { font-size: 1.55rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
