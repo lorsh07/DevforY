@@ -6,6 +6,18 @@
   if (!canvas || !canvas.getContext) return;
   const ctx = canvas.getContext("2d");
   const hero = canvas.parentElement;
+
+  // 캔버스 위치를 CSS에만 맡기지 않아요. (예전 CSS가 캐시돼 있으면 캔버스가 화면 흐름에 끼어들어
+  // 히어로 높이를 키우고 → 캔버스가 다시 커지는 무한 반복이 생길 수 있어서)
+  Object.assign(canvas.style, {
+    position: "absolute",
+    top: "0",
+    left: "0",
+    width: "100%",
+    height: "100%",
+    pointerEvents: "none",
+  });
+  const MAX_SIDE = 4096; // 혹시 모를 경우에도 캔버스가 끝없이 커지지 않게
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   // 점 밝기: 평소엔 검정에 가까운 회색, 파도 꼭대기에서 살짝 밝아져요
@@ -20,11 +32,16 @@
   let rafId = 0;
   let visible = true;
 
+  // 크기가 실제로 바뀌었을 때만 다시 배치해요. 바뀌지 않았으면 false
   function layout() {
     const rect = hero.getBoundingClientRect();
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    width = rect.width;
-    height = rect.height;
+    const nextDpr = Math.min(window.devicePixelRatio || 1, 2);
+    const nextW = Math.min(rect.width, MAX_SIDE / nextDpr);
+    const nextH = Math.min(rect.height, MAX_SIDE / nextDpr);
+    if (nextW === width && nextH === height && nextDpr === dpr && dots.length) return false;
+    dpr = nextDpr;
+    width = nextW;
+    height = nextH;
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -40,6 +57,7 @@
         dots.push({ x: offsetX + c * gap, y: offsetY + r * gap });
       }
     }
+    return true;
   }
 
   // 두 개의 물결을 겹쳐서 자연스럽게, 꼭대기는 좁고 밝게
@@ -91,9 +109,9 @@
     rafId = 0;
   }
 
-  function refresh() {
+  function refresh(force) {
+    if (!layout() && !force) return;
     stop();
-    layout();
     draw(performance.now()); // 움직임을 줄인 경우에도 정지 화면은 보여줘요
     start();
   }
@@ -110,14 +128,14 @@
     let pending = 0;
     new ResizeObserver(() => {
       cancelAnimationFrame(pending);
-      pending = requestAnimationFrame(refresh);
+      pending = requestAnimationFrame(() => refresh());
     }).observe(hero);
   } else {
-    window.addEventListener("resize", refresh);
+    window.addEventListener("resize", () => refresh());
   }
 
   document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
-  if (reduceMotion.addEventListener) reduceMotion.addEventListener("change", refresh);
+  if (reduceMotion.addEventListener) reduceMotion.addEventListener("change", () => refresh(true));
 
-  refresh();
+  refresh(true);
 })();
