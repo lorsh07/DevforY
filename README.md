@@ -29,6 +29,10 @@ python3 -m http.server 8000
 
 GitHub Pages로 배포하려면 저장소 Settings → Pages 에서 브랜치를 선택하면 됩니다.
 
+## 배포할 때 주의
+
+GitHub Pages는 브라우저가 파일을 최대 10분간 캐시해요. CSS나 JS를 고쳤다면 `index.html`에서 파일 주소 뒤의 `?v=` 값을 새 값으로 바꿔 주세요. 그래야 방문자가 새 HTML과 예전 CSS/JS를 섞어서 받지 않아요.
+
 ## 구조
 
 ```
